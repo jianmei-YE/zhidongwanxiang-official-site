@@ -141,5 +141,42 @@
     /* Keep the supplied hero artwork crisp until its individual orbit layers are available. */
     .hero-orbit-rotation{display:none!important}
   </style>
+  <style id="hero-hd-orbits-style">
+    .hero .hero-motion-bg{background-image:url('assets/images/hero-orbits-hd.png')!important;background-position:center!important;background-size:cover!important;filter:none!important}
+    .hero-orbit-dots{position:absolute;z-index:2;inset:0;width:100%;height:100%;pointer-events:none}
+    .hero-orbit-pause-zone{position:absolute;z-index:2;top:118px;right:0;bottom:0;left:43%;pointer-events:auto}
+    @media (max-width:800px){.hero-orbit-pause-zone{display:none}}
+    @media (prefers-reduced-motion:reduce){.hero-orbit-dots{display:none}}
+  </style>
+  <script>
+  (()=>{
+    const hero=document.querySelector('.hero');
+    if(!hero||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const canvas=document.createElement('canvas'),zone=document.createElement('div');
+    canvas.className='hero-orbit-dots';canvas.setAttribute('aria-hidden','true');
+    zone.className='hero-orbit-pause-zone';zone.setAttribute('aria-hidden','true');
+    hero.insertBefore(canvas,hero.querySelector('.hero-copy'));hero.insertBefore(zone,hero.querySelector('.hero-copy'));
+    const ctx=canvas.getContext('2d'),fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
+    const tracks=[
+      [[.31,1.04],[.24,.75],[.62,.24],[1.08,.05],8.6,'#7cf5ff'],
+      [[.35,1.03],[.24,.82],[.60,.43],[1.08,.17],-7.1,'#dffcff'],
+      [[.39,1.01],[.27,.86],[.61,.52],[1.07,.29],9.4,'#49dcff'],
+      [[.48,1.01],[.38,.80],[.70,.60],[1.06,.42],-6.8,'#f1fbff'],
+      [[.57,.98],[.51,.78],[.76,.63],[1.05,.54],8.0,'#69eeff'],
+      [[.63,.92],[.61,.72],[.84,.71],[1.06,.65],-7.5,'#c4b6ff'],
+      [[.71,.87],[.72,.72],[.90,.79],[1.06,.74],9.1,'#77f6ff'],
+      [[.76,.81],[.78,.67],[.95,.75],[1.05,.81],-6.5,'#ffffff']
+    ];
+    let raf=0,last=0,paused=false,visible=true,hidden=document.hidden,w=0,h=0;
+    const resize=()=>{const r=hero.getBoundingClientRect();w=r.width;h=r.height;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0)};
+    const point=(p,t)=>{const q=1-t,a=q*q*q,b=3*q*q*t,c=3*q*t*t,d=t*t*t;return{x:(a*p[0][0]+b*p[1][0]+c*p[2][0]+d*p[3][0])*w,y:(a*p[0][1]+b*p[1][1]+c*p[2][1]+d*p[3][1])*h}};
+    const frame=now=>{raf=0;if(!visible||hidden)return;const dt=Math.min((now-last||16)/1000,.04);last=now;ctx.clearRect(0,0,w,h);if(paused)return;for(const track of tracks){const progress=track[6]??Math.random();track[6]=((progress+dt/track[4])%1+1)%1;const p=point(track,track[6]),r=2.1+Math.sin((track[6]*18)+now*.005)*.45;ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=track[5];ctx.shadowColor=track[5];ctx.shadowBlur=14;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.42;ctx.beginPath();ctx.arc(p.x,p.y,r*3.1,0,Math.PI*2);ctx.fill();ctx.restore()}raf=requestAnimationFrame(frame)};
+    const start=()=>{if(!raf&&visible&&!hidden)raf=requestAnimationFrame(frame)};
+    const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)start()},{threshold:0});
+    zone.addEventListener('pointerenter',()=>{if(fine)paused=true});zone.addEventListener('pointerleave',()=>{paused=false;start()});
+    document.addEventListener('visibilitychange',()=>{hidden=document.hidden;if(!hidden)start()});addEventListener('resize',resize,{passive:true});addEventListener('pagehide',()=>{cancelAnimationFrame(raf);observer.disconnect()},{once:true});
+    resize();observer.observe(hero);start();
+  })();
+  </script>
 </body>
 </html>
