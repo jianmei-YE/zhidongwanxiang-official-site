@@ -104,5 +104,38 @@
     addEventListener('pagehide',()=>{cancelAnimationFrame(raf);observer.disconnect();hero.removeEventListener('pointermove',onMove,true);hero.removeEventListener('pointerleave',stopOldLeave,true);hero.removeEventListener('click',onClick,true);removeEventListener('resize',resize)},{once:true});
   })();
   </script>
+  <style id="hero-orbit-rotation-style">
+    /* Replace the earlier experimental interaction layer with one focused, low-cost orbit motion. */
+    .hero .hero-glow,.hero .hero-stars,.hero .hero-orbit-canvas{display:none!important}
+    .hero.motion-intro .nav,.hero.motion-intro .hero-copy .eyebrow,.hero.motion-intro .hero-copy h1,.hero.motion-intro .hero-copy p,.hero.motion-intro .hero-copy .actions,.hero.motion-intro .hero-copy .metrics,.hero.motion-intro .hero-motion-bg{animation:none!important;filter:none!important}
+    .hero-orbit-rotation{position:absolute;z-index:2;right:-5vw;bottom:-4vw;width:min(58vw,900px);height:min(46vw,700px);pointer-events:auto;transform-origin:52% 56%;animation:orbit-art-rotate 78s linear infinite;will-change:transform}
+    .hero-orbit-rotation:after{content:"";position:absolute;left:42%;top:45%;width:25%;height:25%;border-radius:50%;background:radial-gradient(circle,rgba(103,238,255,.15),rgba(33,117,255,.045) 42%,transparent 70%);filter:blur(7px)}
+    .orbit-ring{position:absolute;border:1px solid rgba(110,236,255,.45);border-radius:50%;box-shadow:0 0 10px rgba(66,216,255,.22),inset 0 0 9px rgba(28,141,255,.09)}
+    .orbit-ring--a{width:98%;height:48%;left:0;top:28%;transform:rotate(14deg)}
+    .orbit-ring--b{width:90%;height:43%;left:5%;top:31%;border-color:rgba(86,175,255,.35);transform:rotate(-17deg)}
+    .orbit-ring--c{width:76%;height:38%;left:13%;top:34%;border-color:rgba(118,246,255,.38);transform:rotate(34deg)}
+    .orbit-satellite{position:absolute;width:8px;height:8px;left:72%;top:24%;border-radius:50%;background:#dffcff;box-shadow:0 0 7px 3px #5fefff,0 0 20px 8px rgba(64,206,255,.38)}
+    .hero-orbit-rotation:hover{animation-play-state:paused}
+    @keyframes orbit-art-rotate{from{transform:rotate(0deg) scale(1.025)}to{transform:rotate(360deg) scale(1.025)}}
+    @media (max-width:800px){.hero-orbit-rotation{right:-22vw;bottom:-9vw;width:102vw;height:78vw;animation-duration:105s}.orbit-satellite{width:6px;height:6px}}
+    @media (prefers-reduced-motion:reduce){.hero-orbit-rotation{animation:none}}
+  </style>
+  <script>
+  (()=>{
+    const originalHero=document.querySelector('.hero');
+    if(!originalHero)return;
+    /* Removing the old hero node also removes the previous pointer and canvas listeners. */
+    const hero=originalHero.cloneNode(true);
+    originalHero.replaceWith(hero);
+    const modal=document.querySelector('#modal');
+    hero.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>modal?.classList.add('show')));
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const rotor=document.createElement('div');
+    rotor.className='hero-orbit-rotation';
+    rotor.setAttribute('aria-hidden','true');
+    rotor.innerHTML='<i class="orbit-ring orbit-ring--a"></i><i class="orbit-ring orbit-ring--b"></i><i class="orbit-ring orbit-ring--c"></i><i class="orbit-satellite"></i>';
+    hero.insertBefore(rotor,hero.querySelector('.hero-copy'));
+  })();
+  </script>
 </body>
 </html>
