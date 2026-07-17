@@ -137,27 +137,9 @@
     hero.insertBefore(rotor,hero.querySelector('.hero-copy'));
   })();
   </script>
-  <style id="hero-track-flow-style">
-    /* The original orbit artwork moves as one continuous field, so no hand-drawn lines are added. */
+  <style id="hero-motion-reset-style">
+    /* Keep the supplied hero artwork crisp until its individual orbit layers are available. */
     .hero-orbit-rotation{display:none!important}
-    .hero .hero-motion-bg{background-size:calc(100% + 28px) calc(100% + 18px)!important;animation:hero-track-flow 13s cubic-bezier(.42,0,.2,1) infinite!important;will-change:background-position,filter}
-    .hero.track-flow-paused .hero-motion-bg{animation-play-state:paused!important}
-    .hero-flow-control{position:absolute;z-index:2;top:116px;right:0;bottom:0;left:48%;pointer-events:auto}
-    @keyframes hero-track-flow{0%,100%{background-position:50% 50%;filter:brightness(1) saturate(1)}30%{background-position:calc(50% + 11px) calc(50% - 7px);filter:brightness(1.07) saturate(1.08)}62%{background-position:calc(50% - 10px) calc(50% + 8px);filter:brightness(1.025) saturate(1.04)}82%{background-position:calc(50% + 6px) calc(50% - 5px);filter:brightness(1.075) saturate(1.1)}}
-    @media (max-width:800px){.hero .hero-motion-bg{animation-duration:17s!important;background-size:calc(100% + 16px) calc(100% + 12px)!important}.hero-flow-control{display:none}}
-    @media (prefers-reduced-motion:reduce){.hero .hero-motion-bg{animation:none!important}}
   </style>
-  <script>
-  (()=>{
-    const hero=document.querySelector('.hero');
-    if(!hero||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    hero.classList.remove('motion-intro');
-    const control=document.createElement('div');
-    control.className='hero-flow-control';control.setAttribute('aria-hidden','true');
-    control.addEventListener('pointerenter',()=>hero.classList.add('track-flow-paused'));
-    control.addEventListener('pointerleave',()=>hero.classList.remove('track-flow-paused'));
-    hero.insertBefore(control,hero.querySelector('.hero-copy'));
-  })();
-  </script>
 </body>
 </html>
